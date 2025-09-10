@@ -1,24 +1,14 @@
-# Prometheus exporter template (Python)
+# GOV.UK Watcher
 
-This is a template to make a Prometheus exporter project (like [Daydream Watcher](https://github.com/MMK21Hub/daydream-watcher)) using Python and the `prometheus_client` library.
+GOV.UK Watcher is a work-in-progress Python tool that exports metrics from the [GOV.UK analytics display screen](https://govuk-display-screen-20e334eeb1ba.herokuapp.com/) for Prometheus-compatible databases.
 
-## Using this template
-
-1. On GitHub, click the green "use this template" button in the top-right
-2. Pick a repository name and description. For consistency, you should name it `*-watcher` (e.g. `core-watcher`, `daydream-watcher`)
-3. Clone and open the repository in your preferred IDE
-4. Use your IDE's global find-and-replace feature to replace all occurrences of `anything-watcher` with your chosen project slug
-5. Also find-and-replace (match whole word) the port number `9000`, changing it to something custom like `9030`
-6. Delete this section and everything above it from the README, and replace it with your own project title and description
-7. Search for "TODO" across all files and address them by writing your own code
-
-## Online demo
+<!-- ## Online demo
 
 [![Screenshot of Grafana dashboard stats from the program](screenshot.png)][demo]
 
 **[🌍 View dashboard on grafana.slevel.xyz][demo]** <!-- TODO Replace the below with demo link (Grafana dashboard) -->
 
-[demo]: https://example.com
+[demo]: https://example.com -->
 
 ## Local development
 
@@ -26,13 +16,13 @@ This project uses Python (3.9+) and [uv](https://docs.astral.sh/uv/) for develop
 
 1. Clone the repo
 2. `uv run main.py`
-3. Head to <http://localhost:9000/metrics> to see the metrics
+3. Head to <http://localhost:9050/metrics> to see the metrics
 
 ## Production deployment with Docker Compose
 
 1. Download the example Compose file from [deployment/docker-compose.yml](deployment/docker-compose.yml). Feel free to adjust it to your needs.
 2. Start it with `docker-compose up -d`
-3. Metrics should now be available at <http://localhost:9000/metrics>
+3. Metrics should now be available at <http://localhost:9050/metrics>
 
 ### Example `prometheus.yml` config
 
@@ -40,10 +30,10 @@ Start tracking the metrics by adding Daydream Watcher as a scrape config to a Pr
 
 ```yaml
 scrape_configs:
-  - job_name: anything-watcher
+  - job_name: govuk-watcher
     scrape_interval: "10s"
     static_configs:
-      - targets: ["anything-watcher:9000"]
+      - targets: ["govuk-watcher:9050"]
 ```
 
 <!-- ### Example Grafana dashboard

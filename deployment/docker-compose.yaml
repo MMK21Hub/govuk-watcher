@@ -1,7 +1,7 @@
 services:
-  anything-watcher:
-    image: mmk21/anything-watcher:latest
+  govuk-watcher:
+    image: mmk21/govuk-watcher:latest
     init: true
     restart: unless-stopped
     ports:
-      - 9000:9000
+      - 9050:9050
