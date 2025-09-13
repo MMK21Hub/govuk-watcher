@@ -5,8 +5,39 @@ from argparse import ArgumentParser
 from prometheus_client import start_http_server, Gauge
 import requests
 from pydantic import BaseModel, field_validator
+import logfire
 
 API_BASE = "https://govuk-display-screen-20e334eeb1ba.herokuapp.com/"
+verbosity = 0
+enable_logfire = False
+
+
+def error(msg: str):
+    if enable_logfire:
+        logfire.error(msg)
+    else:
+        print(msg, file=stderr, flush=True)
+
+
+def warn(msg: str):
+    if enable_logfire:
+        logfire.warning(msg)
+    else:
+        print(msg, flush=True)
+
+
+def info(msg: str):
+    if enable_logfire:
+        logfire.info(msg)
+    else:
+        print(msg, flush=True)
+
+
+def debug(msg: str):
+    if enable_logfire:
+        logfire.debug(msg)
+    elif verbosity:
+        print(msg)
 
 
 def fetch_active_users():
@@ -64,16 +95,22 @@ def main():
         default=5,
         help="how often to fetch data, in seconds",
     )
+    parser.add_argument(
+        "--logfire-token",
+        type=str,
+        help="a Logfire token for sending logs to the cloud",
+    )
     args = parser.parse_args()
+    global verbosity, enable_logfire
+    verbosity = args.verbose
+    enable_logfire = bool(args.logfire_token)
 
-    if False:
-        import logfire
-
+    if enable_logfire:
         logfire.configure()
         logfire.instrument_pydantic()
 
     start_http_server(args.port)
-    print(f"Started metrics exporter: http://localhost:{args.port}/metrics", flush=True)
+    info(f"Started metrics exporter: http://localhost:{args.port}/metrics")
 
     has_had_success = False
     active_users_gauge = Gauge(
@@ -87,19 +124,22 @@ def main():
 
     while True:
         try:
-            active_users_gauge.set(fetch_active_users())
-            for page in fetch_popular_content():
+            active_users = fetch_active_users()
+            popular_pages = fetch_popular_content()
+            active_users_gauge.set(active_users)
+            for page in popular_pages:
                 page_views_gauge.labels(
                     page_path=page.page_path, page_title=page.page_title
                 ).set(page.page_views)
-            if args.verbose:
-                print(f"Successfully fetched data")
+            debug(
+                f"Successfully fetched data ({len(popular_pages)} popular pages, active_users={active_users})"
+            )
             has_had_success = True
         except Exception as e:
             # Exit the program if the first fetch fails
             if not has_had_success:
                 raise e
-            print(f"Failed to fetch data: {format_exc()}", file=stderr, flush=True)
+            error(f"Failed to fetch data: {format_exc()}")
         finally:
             sleep(args.interval)
 
