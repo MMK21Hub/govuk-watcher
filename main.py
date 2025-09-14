@@ -1,3 +1,4 @@
+from datetime import datetime
 from sys import stderr
 from time import sleep
 from traceback import format_exc
@@ -92,7 +93,6 @@ def main():
     parser.add_argument(
         "--interval",
         type=int,
-        default=5,
         help="how often to fetch data, in seconds",
     )
     parser.add_argument(
@@ -123,6 +123,11 @@ def main():
     )
 
     while True:
+        if not args.interval:
+            # Only run at the end of the minute, because that's when GOV.UK reports the most accurate active user stats
+            if not (56 <= datetime.now().second < 60):
+                sleep(1)
+                continue
         try:
             active_users = fetch_active_users()
             popular_pages = fetch_popular_content()
@@ -141,7 +146,10 @@ def main():
                 raise e
             error(f"Failed to fetch data: {format_exc()}")
         finally:
-            sleep(args.interval)
+            if args.interval:
+                sleep(args.interval)
+            else:
+                sleep(55)  # close to 1 minute, but with a bit of margin for inaccuracy
 
 
 if __name__ == "__main__":
