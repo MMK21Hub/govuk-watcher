@@ -22,6 +22,7 @@ This project uses Python (3.9+) and [uv](https://docs.astral.sh/uv/) for develop
 
 All command-line options are optional.
 
+- `--help`: view help text
 - `--interval <seconds>`: how often to fetch data, in seconds
   - Warning: If this isn't a multiple of 60, the `active_users_30_minutes` metric will have some noise because GOV.UK only provides accurate values at the end of each minute.
   - If this is a multiple of 60, the script will automatically fetch data at the end of the minute, to get the most accurate values.
