@@ -94,6 +94,7 @@ def main():
         "--interval",
         type=int,
         help="how often to fetch data, in seconds",
+        default=60,
     )
     parser.add_argument(
         "--logfire-token",
@@ -126,8 +127,8 @@ def main():
     )
 
     while True:
-        if not args.interval:
-            # Only run at the end of the minute, because that's when GOV.UK reports the most accurate active user stats
+        if args.interval % 60 == 0:
+            # Try to run at the end of the minute, because that's when GOV.UK reports the most accurate active user stats
             if not (56 <= datetime.now().second < 60):
                 sleep(1)
                 continue
@@ -149,10 +150,11 @@ def main():
                 raise e
             error(f"Failed to fetch data: {format_exc()}")
         finally:
-            if args.interval:
-                sleep(args.interval)
+            if args.interval % 60 == 0:
+                # Add a bit of margin so that we can trigger reliably at the end of the next minute
+                sleep(args.interval - 5)
             else:
-                sleep(55)  # close to 1 minute, but with a bit of margin for inaccuracy
+                sleep(args.interval)
 
 
 if __name__ == "__main__":
