@@ -114,7 +114,10 @@ def main():
 
     has_had_success = False
     active_users_gauge = Gauge(
-        "active_users_30_minutes", "Number of users on GOV.UK in the last 30 minutes"
+        "active_users_30_minutes",
+        "Number of users on GOV.UK in the last 30 minutes",
+        # We need *some* label here to prevent the metric being initialised to 0 on startup
+        ["site"],
     )
     page_views_gauge = Gauge(
         "popular_page_views",
@@ -131,7 +134,7 @@ def main():
         try:
             active_users = fetch_active_users()
             popular_pages = fetch_popular_content()
-            active_users_gauge.set(active_users)
+            active_users_gauge.labels(site="gov.uk").set(active_users)
             for page in popular_pages:
                 page_views_gauge.labels(
                     page_path=page.page_path, page_title=page.page_title
