@@ -18,6 +18,23 @@ This project uses Python (3.9+) and [uv](https://docs.astral.sh/uv/) for develop
 2. `uv run main.py`
 3. Head to <http://localhost:9050/metrics> to see the metrics
 
+## Command-line options
+
+All command-line options are optional.
+
+- `--interval <seconds>`: how often to fetch data, in seconds
+  - Warning: If this isn't a multiple of 60, the `active_users_30_minutes` metric will have some noise because GOV.UK only provides accurate values at the end of each minute.
+  - If this is a multiple of 60, the script will automatically fetch data at the end of the minute, to get the most accurate values.
+  - Defaults to every minute (`60` seconds), which gives the most frequent accurate data updates.
+- `--port <port>`: the port to run the Prometheus exporter on (default: `9050`)
+- `-v` / `--verbose`: log whenever data is scraped
+  ![Example of verbose logging](assets/verbose-logging.png)
+- `--logfire-token <token>`: a [Logfire](https://logfire.pydantic.dev/) token for sending logs to the cloud
+  ![Example of Logfire being used](assets/logfire-usage.png)
+  - This lets you use Logfire (an external cloud service) to monitor the logs of the exporter in production
+  - If enabled, the `--verbose` option will have no effect (verbose logs are always sent to Logfire)
+  - If not provided, no communications to Logfire will be made
+
 ## Production deployment with Docker Compose
 
 1. Download the example Compose file from [deployment/docker-compose.yml](deployment/docker-compose.yml). Feel free to adjust it to your needs.
